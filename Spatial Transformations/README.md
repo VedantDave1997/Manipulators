@@ -87,7 +87,7 @@ them (Parent or Children properties). The parent is the body that this rigid bod
 example the robot base or some body upstream of the kinematic chain. The children are all the bodies 
 attached to this body downstream from the base of the rigid body tree as shown in the figure below.
 <p align="center">
-  <img src="Figures/Rigid Body Tree.JPG" width="250" title="hover text">
+  <img src="Figures/Rigid Body Tree.JPG" width="350" title="hover text">
 </p>
 
 
