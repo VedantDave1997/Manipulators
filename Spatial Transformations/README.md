@@ -14,47 +14,84 @@ camera frame and B the object frame. The mathematics of spatial transformations 
 motions in Euclidean space is of fundamental importance to robotic manipulation.
 <p align="center">
   <img src="Figures/Coordinate Frames.JPG" width="350" title="hover text">
-</p>
+</p>    
 
-<h3>ROS</h3>
-ROS is an open-source, meta-operating system for your robot. It provides the common of an ordinary
-operating system, including hardware abstraction, low-level device control, implementation of
-commonly-used functionality, message-passing between processes, and package management. It also 
-provides tools and libraries for obtaining, building, writing, and running code across multiple 
-computers. ROS strongly supports reuse of software in robotics research and development. ROS is a 
-distributed framework of processes (nodes) that enables executables to be individually designed and 
-loosely coupled at runtime. We specifically ROS Kinetic for this purpose. The installation guidelines
-about ROS Kinetic can be found at http://wiki.ros.org/ROS/Installation.
+<h3>Spatial Transformations</h3>
+A general rigid body motion is composed of a translation and a rotation. A translation in Euclidean 
+space is represented by the components of an ordinary 3D vector p = [p<sub>x</sub> p<sub>y</sub> p<sub>z</sub>]
+in which the vector p = p<sub>x</sub>x + p<sub>y</sub>y + p<sub>z</sub>z. x, y, z are the unit vectors
+of the frame axes of an orthogonal frame O − xyz. Successive translations are obtained by mere vector 
+addition p<sub>02</sub> = p<sub>01</sub> + p<sub>12</sub>. Matlab employs the abbreviation <i>trvec</i>
+for a translation vector which is represented in 3-D Euclidean space as Cartesian coordinates.
 
-<h3>Stage and Gazebo</h3>
-Stage is a standalone simulator with an interface to ROS. The integrated controllers enable motion 
-control, robot behaviour and processes. Stage is a scaleable which allows the simulation of a fleet of
-mobile robots residing in a two-dimensional bitmapped environment. Stage provides virtual robots 
-which interact with simulated rather than physical devices. The Stage tutorials introduces the 2D
-simulator and explains how to setup the Turtlebot robot and configure the robots environment. For 
-further information see http://rtv.github.io/Stage/.<br/><br/>
-Gazebo is a multi-robot simulator for indoor and outdoor environments. Like Stage it is able to
-simulate multiple robots, sensors and objects. The main difference between Stage and Gazebo is that
-the later resides in a three-dimensional world and supports the simulation of rigid-body physics,
-namely robots that push things around, pick things up. Robots generally interact with the world in a
-plausible manner, for example a Turtlebot robot starts to spin if centrifugal forces on a curved 
-trajectory exceed a threshold.
-
-<h3>Rviz</h3>
-RViz uses the tf transform system for transforming data from the coordinate frame it arrives in, into
-a global reference frame. There are two coordinate frames that are important to know about in the
-visualizer. The fixed frame is the reference frame used to denote the world frame. This is usually 
-the map, or world, or something similar, but can also be, for example, your odometry frame. For 
-correct results, the fixed frame should not be moving relative to the world. The target frame is the 
-reference frame for the camera view. For example, if your target frame is the map, you see the robot 
-driving around the map from the perspective of an outside observer. Rviz provides a number of 
-different camera perspectives so called views to visualize the environment. A display in rviz is 
-something that draws something in the 3D world such as a point cloud or the robot state. The Rviz 
-User Guide explains the GUI and the functionalities that Rviz provides. The Robot frames in RViz is 
-shown in the figure below:<br/><br/>
+<h3>Rotation Matrices</h3>
+Rotations are represented by 3 × 3 rotation matrices and they not only describes the relative 
+orientation between frames but also performs a rotation of a vector in Euclidean space:
 <p align="center">
-  <img src="Figures/Turtlebot in Rviz.JPG" width="350" title="hover text">
+  <img src="Figures/Coordinate Frames.JPG" width="250" title="hover text">
+</p>    
+It rotates vectors counter-clockwise through an angle θ about the z-axis of the Cartesian coordinate 
+system. To perform the rotation using a rotation matrix R, the position of a point in space is 
+represented by a 1-by-3 column vector p = [p<sub>x</sub> p<sub>y</sub> p<sub>z</sub>]<sup>T</sup>, that
+contains the coordinates of the point w.r.t. an X − Y − Z frame. Once XYZ axes of a local frame are
+expressed numerically as three direction vectors w.r.t. a global world frame, they together comprise 
+the columns of the rotation matrix R that transforms vectors in the reference frame into equivalent 
+vectors expressed in the coordinates of the local frame. The inverse of rotation matrix coincides with
+its transpose, namely R<sup>−1</sup> = R<sup>T</sup>. Rotation matrices are square
+matrices that obey the orthogonality constraints: R<sup>T</sup> = R<sup>−1</sup> and det(R) = 1.<br/><br/>
+We intially define translation and rotation vectors with <i>trvec</i> function and <i>rotm</i>
+respectively in different axes. Then we apply transformation p'= R<sub>x</sub>(R<sub>z</sub>(p + 
+t<sub>z</sub>) + t<sub>x</sub>) 
+
+<h3>Homogeneous Transformations</h3>
+Homogeneous transformations are important as they provide the basis for defining robot direct (forward)
+kinematics. The relationships between frames, e.g. robot base frame and end effector frame, are defined
+by homogeneous transforms. In the field of robotics there are many possible ways of representing 
+positions and orientations, but the homogeneous transformation is well matched to MATLABs powerful 
+tools for matrix manipulation. Homogeneous transformations combine the two operations of rotation and 
+translation into a single matrix multiplication. Homogeneous transformations are 4 × 4 matrices that
+describe the relationships between Cartesian coordinate frames in terms of translation and orientation.
+They are composed of a rotation matrix R and a translation vector t.
+<p align="center">
+  <img src="Figures/Homogenous Transformation Matrix.JPG" width="250" title="hover text">
 </p>
+The Robotics System Toolbox provides conversion functions for transformation representations 
+tform=trvec2tform(trvec), that generates the homogeneous transformation matrix tform that corresponds
+to a translation vector trvec with components t = [t<sub>x</sub>,t<sub>y</sub>,t<sub>z</sub>]. Similarly
+tform=rotm2tform(rotm) generates the homogeneous transformation matrix tform (H) that corresponds to a 
+rotation matrix rotm (R). We generate a homogeneous transformation tformdhc that corresponds to the
+consecutive application of the translation along z-axis by d = 1, rotation along z-axis by θ = π/4, 
+translation along the new x-axis by a = 1 and final rotation along the new x-axis by α = π/2. We then 
+generate tformdhc by post-multiplying the transforms tformtz, tformrotz, tformtx and tformrotx i.e.
+H<sub>dhc</sub> = H<sub>tz</sub>H<sub>Rz</sub>H<sub>tx</sub>H<sub>Rx</sub>
+
+<h3>Rigid Body Tree Robot Model</h3>
+Homogeneous transformations are ubiquitous in robotics and therefore in the Robotics System Toolbox.
+In particular they provide the basis for defining and utilizing robot direct and inverse kinematics as
+the corresponding frames are defined by homogeneous transforms. The rigid body tree model is a 
+representation of a robot structure. It is useful to represent robots such as manipulators or other 
+kinematic trees. The <b>RigidBodyTree</b> class provides a representation of manipulator kinematic models.
+A rigid body tree is composed of rigid bodies (<b>robotics.RigidBody</b>) that are connected via joints
+(<b>robotics.Joint</b>). Each rigid body has a joint that defines how that body moves relative to its parent
+in the tree. The method <b>robotics.Joint.setFixedTransform</b> specifies the transformation from one 
+body to the next by setting the fixed transformation on each joint. Bodies can be added, replaced,  
+or removed from the rigid body tree model. You can also replace joints for specific bodies. The 
+<b>RigidBodyTree</b> object maintains the relationships and updates the </b>RigidBody</b> object 
+properties to reflect this relationship. The transformations between different body frames are 
+retrieved with <b>robotics.RigidBodyTree.getTransform</b>. Every rigid body tree has a base. The base
+defines the world coordinate frame and is the first attachment point for a rigid body. The base cannot 
+be modified, except for its <b>BaseName</b> property. The rigid body is the basic building block of 
+rigid body tree model and is created using <b>robotics.RigidBody</b>. Rigid body objects are added to
+a rigid body tree with multiple bodies. Rigid bodies possess parent or children bodies associated with
+them (Parent or Children properties). The parent is the body that this rigid body is attached to, for
+example the robot base or some body upstream of the kinematic chain. The children are all the bodies 
+attached to this body downstream from the base of the rigid body tree as shown in the figure below.
+<p align="center">
+  <img src="Figures/Rigid Body Tree.JPG" width="250" title="hover text">
+</p>
+
+
+
 The modules covered includes:
 <ul>
   <li>Scan Matching</li>
