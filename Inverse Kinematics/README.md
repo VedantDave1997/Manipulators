@@ -11,32 +11,19 @@ is outside the manipulators workspace. For a numerical solution the inverse kine
 formulated as an optimization problem. In fact the objective is to minimize the error between the 
 target transform H<sub>t</sub> for the end effector and the forward kinematics of a joint 
 configuration H<sub>e</sub>(q). For that purpose we decompose the pose error into a position and a 
-rotation part. The position error is simply the distance of the origin of both transform:
-        
-
-<p align="center">
-  <img src="Figures/Coordinate Frames.JPG" width="350" title="hover text">
-</p>    
-
-<h3>Spatial Transformations</h3>
-A general rigid body motion is composed of a translation and a rotation. A translation in Euclidean 
-space is represented by the components of an ordinary 3D vector p = [p<sub>x</sub> p<sub>y</sub> p<sub>z</sub>]
-in which the vector p = p<sub>x</sub>x + p<sub>y</sub>y + p<sub>z</sub>z. x, y, z are the unit vectors
-of the frame axes of an orthogonal frame O − xyz. Successive translations are obtained by mere vector 
-addition p<sub>02</sub> = p<sub>01</sub> + p<sub>12</sub>. Matlab employs the abbreviation <i>trvec</i>
-for a translation vector which is represented in 3-D Euclidean space as Cartesian coordinates.
+rotation part. The position error is simply the distance of the origin of both transform:<br/><br/>
 <img src="https://render.githubusercontent.com/render/math?math=e_p(q) = [e_x, e_y, e_z]^T = [p_{xt}-p_{xe}, p_{yt}-p_{ye}, p_{zt}-p_{ze}]^T "><br/>
 
 For the rotation part the relative orientation matrix R<sub>d</sub> = R<sub>t</sub>R<sub>e</sub>(q)' 
 is converted to an axis angle representation [α w<sub>x</sub> w<sub>y</sub> w<sub>z</sub>]<sup>T</sup>.
-The orientation error is given b:
-<img src="https://render.githubusercontent.com/render/math?math=e_w(q) = [e_{wx}, e_{wy}, e_{wz}]^T = [\alpha w_x,\alpha w_y,\alpha w_z]^T "><br/>
+The orientation error is given b:<br/><br/>
+<img src="https://render.githubusercontent.com/render/math?math=e_w(q) = [e_{wx}, e_{wy}, e_{wz}]^T = [\alpha w_x,\alpha w_y,\alpha w_z]^T "><br/><br/>
 The Robotics system toolbox provides a helper function to calculate the error vector e between two
-transforms <b>robotics.manip.internal.IKHelpers.poseError(tformt, tformq)<\b>. The objective is to
-minimize the error norm in the least squares sense:
-<img src="https://render.githubusercontent.com/render/math?math=min \frac{1}{2}||e(q)|| = min \frac{1}{2}(e_x^2 %2B e_y^2 %2B e_z^2 %2B e_{xw}^2 %2B e_{wy}^2 %2B e_{wz}^2)"><br/>
-A more general error is obtained by weighting the individual errors:
-<img src="https://render.githubusercontent.com/render/math?math=min \frac{1}{2}e_w(q) = min \frac{1}{2} e'We"><br/>
+transforms <b>robotics.manip.internal.IKHelpers.poseError(tformt, tformq)</b>. The objective is to
+minimize the error norm in the least squares sense:<br/><br/>
+<img src="https://render.githubusercontent.com/render/math?math=min \frac{1}{2}||e(q)|| = min \frac{1}{2}(e_x^2 %2B e_y^2 %2B e_z^2 %2B e_{xw}^2 %2B e_{wy}^2 %2B e_{wz}^2)"><br/><br/>
+A more general error is obtained by weighting the individual errors:<br/><br/>
+<img src="https://render.githubusercontent.com/render/math?math=min \frac{1}{2}e_w(q) = min \frac{1}{2} e'We"><br/><br/>
 in which W is a positive definite matrix, often diagonal. In fact if a feasible solution q* of the 
 inverse kinematics problem exists, namely the target pose is within the robot workspace then the pose
  error becomes zero e(q*) = 0.<br><br/>
@@ -45,14 +32,59 @@ algorithms exist. The Jacobian is the matrix of first order derivatives of a vec
 In our case we are interested in partial derivatives of the error vector w.r.t. to joint angles that
 form the Jacobian J. The current solution q is improved with a Levenberg-Marquardt (damped least 
 squares) step q' = q + ∆q with ∆q obtained from the algebraic solution of (J<sup>T</sup>J + λI)∆q =
-J<sup>T</sup>e.
+J<sup>T</sup>e.<br/><br/>
+The <b>InverseKinematics</b> class creates an inverse kinematics (IK) solver to calculate joint 
+configurations for a desired end effector pose based on a specified rigid body tree model. This code
+generates an inverse kinematics solver object for the <b>robotics.RigidBodyTree</b> object and 
+determines the inverse kinematics solution as a configuration object for the target pose <b>tform</b>.
+The Robotics System Toolbox provides a non documented helper function
+<b>robotics.manip.internal.IKHelpers.poseError</b> to calculate the pose error according to the 
+previous equations between two transforms. The code determines the pose (task space) and joint
+space error between the commanded pose and the numerical solution of inverse kinematics.
 
 
+<h3>Numerical Solution of Inverse Kinematics</h3>
+Here we deal with the numerical solution of inverse kinematics with the help of the Matlab 
+optimization toolbox. The solution of the inverse kinematics problem is a non-linear least squares
+problem, in particular the cost function w.r.t. to joint vector q becomes Rotations are represented
+by 3 × 3 rotation matrices and they not only describes the relative orientation between frames but
+also performs a rotation of a vector in Euclidean space  to minimize the norm of the pose error in
+target space e:
+<img src="https://render.githubusercontent.com/render/math?math=E(q) = \frac{1}{2}(e_x^2 %2B e_y^2 %2B e_z^2 %2B e_{xw}^2 %2B e_{wy}^2 %2B e_{wz}^2)"><br/><br/>
+The <b>poseerror</b> calculates the pose error in target space with help of
+<b>robotics.manip.internal.IKHelpers.poseError</b>. The input arguments are the joint vector q subject
+to optimization, the <b>RigidBodyTree</b> robot, the end effector body name bodyname and the target
+pose transform <b>targetpose</b>. Then we invoke the non-linear least squares optimization with
+<b>lsqnonlin</b>. Then we calculate the pose error in task space of your solution vector q and 
+compare its norm with the inverse kinematics solution of the Robotics Toolbox. Finally we perform the
+same optimization and analysis for the Saywer robot object and target pose.
 
 
-<h3>Rotation Matrices</h3>
-Rotations are represented by 3 × 3 rotation matrices and they not only describes the relative 
-orientation between frames but also performs a rotation of a vector in Euclidean space:
-<p align="left">
-  <img src="Figures/Rotation Matrix.JPG" width="200" title="hover text">
-</p>
+<h3>Redundant Manipulator</h3>
+A redundant manipulator has more than six degrees of freedom which means that it has additional joint
+parameters that allow the configuration of the robot to change while it holds its end effector in a
+fixed position and orientation. A typical redundant manipulator has seven joints, for example three at
+the shoulder, one elbow joint and three at the wrist. This manipulator can move its elbow around a
+circle while it maintains a specific position and orientation of its end effector.<br/><br/>
+
+In case of a redundant manipulator with more degrees of freedom than task space dimensions there is 
+an infinite number of solutions of the inverse kinematics problem. The inverse kinematics problem is
+of particular interest in the case of a redundant manipulator since it admits infinite solutions. The
+above inverse kinematics algorithms can be extended to redundant manipulators by adopting a task space
+augmentation technique. Formally, an additional objective or constraint is imposed to be satisfied
+along with the end effector task. Typical objectives include obstacle avoidance, limited joint range,
+manipulability measures and singularity avoidance.<br/><br/>
+
+Let us consider limited joint range, that means we would like the joint configuration to be as close 
+as possible to the home configuration q = 0. Assume that q is a solution of e(q*) = 0. If you add a
+small vector qn that lies in the null space of the Jacobian J then q' = q + q<sub>n</sub> also 
+satisfies e(q*) = 0. The small joint displacement q<sub>n</sub> causes no motion of the end effector
+as it lies in the null space of the Jacobian. We can utilize this property to optimize the secondary 
+objective such as to find a joint vector q that satisfies the minimizing error norm euqation and has
+minimal norm ||q||.<br/><br/>
+
+Explore the redundancy of the 7-DOF Sawyer robot to optimize the joint range of the inverse kinematics
+solution namely to find a solution of minimal norm of the first three joint variables ||q(1:3)||. 
+The projection of the joint vector q into the null space of the Jacobian J is given by 
+q<sub>null</sub> = (I-J<sup>+</sup>J)q, where which J<sup>+</sup>J denotes the pseudo inverse of a
+non-square matrix.
