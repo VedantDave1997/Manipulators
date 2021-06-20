@@ -6,14 +6,11 @@ a{4,1} = 0;        a{5,1} = 0;       a{6,1} = 0;
 d{1,1} = 0.1273;   d{2,1} = 0;       d{3,1} = 0;
 d{4,1} = 0.163914; d{5,1} = 0.1157;  d{6,1} = 0.0922;
 
-
 th{1,1} = 0;    th{2,1} = 0;         th{3,1} = 0;
 th{4,1} = 0;    th{5,1} = 0;         th{6,1} = 0;
 
-
 alp{1,1} = pi/2;   alp{2,1} = 0;      alp{3,1} = 0;
 alp{4,1} = pi/2;   alp{5,1} = -pi/2;  alp{6,1} = 0;
-
 
 trvecz = [0 0 d{1,1}];
 homotrvecz = trvec2tform(trvecz);
@@ -63,13 +60,11 @@ wrist1joint.setFixedTransform([a{4,1} alp{4,1} d{4,1} th{4,1}],'dh');
 wrist1link.Joint = wrist1joint;
 robot.addBody(wrist1link,'ForeArmLink');
 
-
 wrist2link = robotics.RigidBody('Wrist2Link');
 wrist2joint = robotics.Joint('Wrist2','revolute');
 wrist2joint.setFixedTransform([a{5,1} alp{5,1} d{5,1} th{5,1}],'dh');
 wrist2link.Joint = wrist2joint;
 robot.addBody(wrist2link,'Wrist1Link');
-
 
 wrist3link = robotics.RigidBody('Wrist3Link');
 wrist3joint = robotics.Joint('Wrist3','revolute');
@@ -78,7 +73,6 @@ wrist3link.Joint = wrist3joint;
 robot.addBody(wrist3link,'Wrist2Link');
 
 %Program7
-
 eelink = robotics.RigidBody('EndEffectorLink');
 eejoint = robotics.Joint('EndEffector','revolute');
 eejoint.setFixedTransform([0 0 0 0],'dh');
