@@ -27,8 +27,8 @@ for a translation vector which is represented in 3-D Euclidean space as Cartesia
 <h3>Rotation Matrices</h3>
 Rotations are represented by 3 × 3 rotation matrices and they not only describes the relative 
 orientation between frames but also performs a rotation of a vector in Euclidean space:
-<p align="center">
-  <img src="Figures/Coordinate Frames.JPG" width="250" title="hover text">
+<p align="left">
+  <img src="Figures/Rotation Matrix.JPG" width="200" title="hover text">
 </p>    
 It rotates vectors counter-clockwise through an angle θ about the z-axis of the Cartesian coordinate 
 system. To perform the rotation using a rotation matrix R, the position of a point in space is 
@@ -52,7 +52,7 @@ tools for matrix manipulation. Homogeneous transformations combine the two opera
 translation into a single matrix multiplication. Homogeneous transformations are 4 × 4 matrices that
 describe the relationships between Cartesian coordinate frames in terms of translation and orientation.
 They are composed of a rotation matrix R and a translation vector t.
-<p align="center">
+<p align="left">
   <img src="Figures/Homogenous Transformation Matrix.JPG" width="250" title="hover text">
 </p>
 The Robotics System Toolbox provides conversion functions for transformation representations 
@@ -90,7 +90,16 @@ attached to this body downstream from the base of the rigid body tree as shown i
   <img src="Figures/Rigid Body Tree.JPG" width="350" title="hover text">
 </p>
 
-
+Joints also have properties that define the fixed transformation between parent and children body 
+coordinate frames. These properties can only be set using the <b>robotics.Joint.setFixedTransform</b> 
+method. Depending on your method of inputting transformation parameters, either the 
+<b>JointToParentTransform</b> or <b>ChildToJointTransform</b> property is set. Here we generate a
+rigid body tree, with four bodies. We initially create arigid body tree <i>rbtree</i> with the method
+<b>robotics.RigidBodyTree</b>. We create four bodies and assign one joint for each body, along with
+their transforms. The rigid body tree for elemental Denavit-Hartenberg transforms is shown below.
+<p align="center">
+  <img src="Figures/RBTree DH Parameters.JPG" width="350" title="hover text">
+</p>
 
 The modules covered includes:
 <ul>
