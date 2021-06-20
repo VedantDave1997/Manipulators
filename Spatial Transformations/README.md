@@ -92,12 +92,3 @@ their transforms. The rigid body tree for elemental Denavit-Hartenberg transform
 <p align="center">
   <img src="Figures/RBTree DH Parameters.JPG" width="350" title="hover text">
 </p>
-
-The modules covered includes:
-<ul>
-  <li>Scan Matching</li>
-  <li>Reactive Obstacle Avoidance</li>
-  <li>Robot Homing</li>
-  <li>Obstacle Avoidance</li>
-  <li>Monte Carlo Localization</li>  
-</ul>
