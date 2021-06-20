@@ -1,12 +1,4 @@
-This repository consists of some basic methods and algorithms used in Mobile Robots field taught at 
-Technische Universität Dortmund. In order to implement the algorithm on Robotic applications in 
-simulation, Robot Operating System(ROS) is used. The  ROS environment is launched in Ubuntu 16.04. 
-In particular, we use Stage and Gazebo simulator with the configuration of the Turtlebot robot in the
-Stage simulator. We also utilise Rviz as the standard ROS tool for visualization of data, for example
-scan data of a range finder. The Mathworks Robotics System Toolbox connects the ROS master and 
-subscribes to ROS nodes.
-
-<h3>Spatial Transformations</h3>
+<h3>Transformations</h3>
 Robot kinematics establishes the transformations among various coordinate frames that capture the 
 positions and orientations of end-effector, links, rigid bodies and cameras as shown in figure below.
 In this scenario W denotes the robot base frame or world frame, E the robot end effector frame, C the
